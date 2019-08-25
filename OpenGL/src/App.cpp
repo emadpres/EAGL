@@ -1,9 +1,13 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "Renderer.h"
-
 #include <iostream>
+
+#include "Renderer.h"
+#include "VertextBuffer.h"
+#include "IndexBuffer.h"
+#include "BufferLayout.h"
+#include "VertexArray.h"
 
 int main(void)
 {
@@ -30,68 +34,37 @@ int main(void)
 	glewInit();
 	std::cout << glGetString(GL_VERSION) << std::endl;
 	
-	/*********************************** 0. Vertex Array ***********************/
-	/*	Vertex Array stores: 
-		- refrence to a vertex buffer
-		- the attributes layout of that vertet buffer
-		- reference to a index buffer
 
-		For draw, all we need is to bind this vertex array alone.
-		To setup a vertex array, after binding the vertex buffer:
-		1. Bind vertex buffer to GL_ARRAY_BUFFER
-		2. Set attrib layout and enable them
-		3. Bind index buffer to GL_ELEMENT_ARRAY_BUFFER
-		4. *DO NOT* unbind GL_ARRAY_BUFFER and GL_ELEMENT_ARRAY_BUFFER before unbinding vertex array, otherwise references will be deleted.
-	*/
-	unsigned int vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-
-
-	/*********************************** 1. Vertex Buffer ***********************/
-	float vertices[]{
-		// We have one attribute ( 2 floats) per vertex ( 4 vertices)
+	// 1. Triangle
+	float vertices_triangle[]{
 		-0.5f, -0.5f, 
 		 0.5f, -0.5f,
 		 0.5f,  0.5f,
-		-0.5f,  0.5f
 	};
-
-	// 1. Create a (vertex/data) buffer
-	unsigned int vb;
-	glGenBuffers(1, &vb);
-
-	// 2. Bind buffer to GL_ARRAY_BUFFER ==> for vertex buffer
-	glBindBuffer(GL_ARRAY_BUFFER, vb);
-
-	// 3. (while binded) Set the data (for the buffer binded currently to GL_ARRAY_BUFFER)
-	glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(float), vertices, GL_STATIC_DRAW);
-
-	// 4. (while binded) Set vertex attributes layout (for the buffer binded currently to GL_ARRAY_BUFFER)
-	// set layout of attrib#0
-	glVertexAttribPointer(	0, 
-							2 , GL_FLOAT,		/*2 floats*/
-							GL_FALSE,
-							2 * sizeof(float),	/*size of each vertex*/
-							0);					/*offset of this attrib in vertex*/
-	// enable attrib #0
-	glEnableVertexAttribArray(0);
+	eagl::VertexBuffer vb_triangle(6 * sizeof(float), vertices_triangle);
+	eagl::BufferLayout layout;
+	layout.Add(2, GL_FLOAT);
+	eagl::VertexArray va_triangle(&vb_triangle, layout, nullptr);
 
 
-	/*********************************** 2. Index Buffer ***********************/
-	unsigned int indices[]{
+	// 2. Rectangle
+	float vertices_rectangle[]{
+	-0.5f, -0.25f,
+	 0.5f, -0.25f,
+	 0.5f,  0.25f,
+	-0.5f,  0.25f
+	};
+	eagl::VertexBuffer vb_rectangle(8 * sizeof(float), vertices_rectangle);
+
+	unsigned int indices_rectangle[]{
 		0,1,2,
 		2,3,0
 	};
-	// 1. Create a (index) buffer
-	unsigned int ib;
-	glGenBuffers(1, &ib);
-	// 2. Bind buffer to GL_ELEMENT_ARRAY_BUFFER ==> for vertex buffer
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
-	// 3. Set the data (for the buffer binded currently to GL_ELEMENT_ARRAY_BUFFER)
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+	eagl::IndexBuffer ib_rectangle(6, GL_UNSIGNED_INT, indices_rectangle);
 
+	eagl::BufferLayout layout_rectangle;
+	layout_rectangle.Add(2, GL_FLOAT);
+	eagl::VertexArray va_rectangle(&vb_rectangle, layout_rectangle, &ib_rectangle);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -99,13 +72,12 @@ int main(void)
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
 		
-		UnbindAll();
-		/* For Drawing:
-			Since we already setup "Vertex Array" for our rectangular, we simply bind it and draw it.
-			It automatically handle binding vertex buffer and index buffer and loading attrib layout.
-		*/
-		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+		eagl::UnbindAll();
+		va_triangle.Bind();
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		va_rectangle.Bind();
+		glDrawElements(GL_TRIANGLES, ib_rectangle.GetCount(), ib_rectangle.GetType(), nullptr);
 		
 
 		/* Swap front and back buffers */
