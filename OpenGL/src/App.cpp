@@ -8,6 +8,7 @@
 #include "IndexBuffer.h"
 #include "BufferLayout.h"
 #include "VertexArray.h"
+#include "Shader.h"
 
 int main(void)
 {
@@ -22,7 +23,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+	window = glfwCreateWindow(640, 480, "OpenGL World", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -31,7 +32,11 @@ int main(void)
 
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
-	glewInit();
+	glfwSwapInterval(1);
+
+
+	if (glewInit() != GLEW_OK)
+		std::cout << "GLEW Init Error!" << std::endl;
 	std::cout << glGetString(GL_VERSION) << std::endl;
 	
 
@@ -66,6 +71,12 @@ int main(void)
 	layout_rectangle.Add(2, GL_FLOAT);
 	eagl::VertexArray va_rectangle(&vb_rectangle, layout_rectangle, &ib_rectangle);
 
+
+	eagl::Shader shader_red("res/shader/red.glsl");
+	eagl::Shader shader_uniform("res/shader/uniformColor.glsl");
+
+	float r = 0, r_inc = 0.05;
+	float x_offset = 0, y_offset=0, xy_offset_inc = 0.05;
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
@@ -73,12 +84,24 @@ int main(void)
 		glClear(GL_COLOR_BUFFER_BIT);
 		
 		eagl::UnbindAll();
+		shader_uniform.Bind();
+		shader_uniform.SetUniform4f("u_color", r, 0.6f, 0.6f, 1.f);
+		shader_uniform.SetUniform4f("u_pos_offset", x_offset, y_offset, 0.0f, 0.0f);
 		va_triangle.Bind();
+
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		va_rectangle.Bind();
+		shader_red.Bind();
 		glDrawElements(GL_TRIANGLES, ib_rectangle.GetCount(), ib_rectangle.GetType(), nullptr);
 		
+
+		if (x_offset > 0.5 || x_offset < -0.5) xy_offset_inc *= -1;
+		x_offset += xy_offset_inc;
+		y_offset += xy_offset_inc;
+
+		if (r < 0 || r>1) r_inc *= -1;
+		r += r_inc;
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);

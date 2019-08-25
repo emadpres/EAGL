@@ -83,17 +83,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\utils\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\BufferLayout.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\utils\utils.h" />
     <ClInclude Include="src\VertexArray.h" />
     <ClInclude Include="src\VertextBuffer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\shader\red.glsl" />
+    <None Include="res\shader\uniformColor.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
