@@ -13,9 +13,9 @@ int main(void)
 	if (!glfwInit())
 		return -1;
 
-	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	/* Create a windowed mode window and its OpenGL context */
 	window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
@@ -30,6 +30,25 @@ int main(void)
 	glewInit();
 	std::cout << glGetString(GL_VERSION) << std::endl;
 	
+	/*********************************** 0. Vertex Array ***********************/
+	/*	Vertex Array stores: 
+		- refrence to a vertex buffer
+		- the attributes layout of that vertet buffer
+		- reference to a index buffer
+
+		For draw, all we need is to bind this vertex array alone.
+		To setup a vertex array, after binding the vertex buffer:
+		1. Bind vertex buffer to GL_ARRAY_BUFFER
+		2. Set attrib layout and enable them
+		3. Bind index buffer to GL_ELEMENT_ARRAY_BUFFER
+		4. *DO NOT* unbind GL_ARRAY_BUFFER and GL_ELEMENT_ARRAY_BUFFER before unbinding vertex array, otherwise references will be deleted.
+	*/
+	unsigned int vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+
+
 	/*********************************** 1. Vertex Buffer ***********************/
 	float vertices[]{
 		// We have one attribute ( 2 floats) per vertex ( 4 vertices)
@@ -82,16 +101,10 @@ int main(void)
 		
 		UnbindAll();
 		/* For Drawing:
-			Since by default we are in OpenGL_Compatibility_profile, a *single* "Vertex Array" is created for us.
-			which we share it for all drawing. To setup this vertex array, for every draw, we need to:
-			- Bind vertex buffer
-			- (while binded) Set the attributes layout, and enable attributes
-			- (optionally) Bind index buffer
+			Since we already setup "Vertex Array" for our rectangular, we simply bind it and draw it.
+			It automatically handle binding vertex buffer and index buffer and loading attrib layout.
 		*/
-		glBindBuffer(GL_ARRAY_BUFFER, vb);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE,2 * sizeof(float), 0);
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
+		glBindVertexArray(vao);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 		
 
