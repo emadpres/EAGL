@@ -15,10 +15,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Draw_w_VertexArray.cpp">
+    <ClCompile Include="src\0_EmptyWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Draw_wo_VertexArray.cpp">
+    <ClCompile Include="src\1_Draw_w_VertextBuffer_VBO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\2_Draw_w_IndexBuffer_IBO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\3_Draw_w_VertexArray_VAO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\4_Draw_w_Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -86,8 +86,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Draw_wo_VertexArray.cpp" />
-    <ClCompile Include="src\Draw_w_VertexArray.cpp" />
+    <ClCompile Include="src\0_EmptyWindow.cpp" />
+    <ClCompile Include="src\1_Draw_w_VertextBuffer_VBO.cpp" />
+    <ClCompile Include="src\2_Draw_w_IndexBuffer_IBO.cpp" />
+    <ClCompile Include="src\3_Draw_w_VertexArray_VAO.cpp" />
+    <ClCompile Include="src\4_Draw_w_Shader.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
