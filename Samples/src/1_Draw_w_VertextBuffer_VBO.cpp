@@ -1,4 +1,5 @@
 #if 0
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -11,7 +12,7 @@ int main(void)
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //default mode
 
 	window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
 	if (!window)
@@ -29,7 +30,7 @@ int main(void)
 	*/
 
 
-	/*********************************** 1. Vertex Buffer ***********************/
+	/*********************************** 1. Vertex Buffer (NEW)***********************/
 	float vertices[]{
 		// We have vertex (4 vertices), each composed of one attribute (=position =2 floats)
 		-0.5f, -0.5f, 
@@ -67,13 +68,16 @@ int main(void)
 			Since by default we are in OpenGL_Compatibility_profile, a *single* "Vertex Array" is created for us.
 			which is shared for all drawing. To setup this vertex array, for every draw, we need to:
 			- Bind vertex buffer
-			- (while binded) Set the attributes layout, and enable attributes
-			- DRAW
+			- (while VBO binded) Set the attributes layout, and enable attributes
+			- DRAW !!!!
+			
 		*/
 		glBindBuffer(GL_ARRAY_BUFFER, vb);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 		glEnableVertexAttribArray(0);
-		// glDrawArrays uses "count" sequential elements from already binded GL_ARRAY_BUFFER to construct a sequence of "geometric primitives", beginning with element "first". 
+		/*	DRAW:
+			glDrawArrays uses "count" sequential elements from already binded GL_ARRAY_BUFFER to construct 
+			a sequence of "geometric primitives", beginning with element "first".*/
 		glDrawArrays(	GL_TRIANGLES,	/*what geometric primitive, e.g., GL_TRIANGLE*/
 						0,				/*first = starting index in vertex buffer*/
 						3);				/*count = number of vertices*/	/* here it draw every 3 (<--because of GL_TRIANGLES) vertices startinf from #0 until #2 (in total 3 verices)*/

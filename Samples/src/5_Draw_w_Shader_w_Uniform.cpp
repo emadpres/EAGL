@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+unsigned int CompileShader(unsigned int type, const std::string source);
 void UnbindEeverything();
 
 int main(void)
@@ -22,36 +23,22 @@ int main(void)
 		glfwTerminate();
 		return -1;
 	}
+
 	glfwMakeContextCurrent(window);
+	glfwSwapInterval(1);
 	glewInit();
 	std::cout << glGetString(GL_VERSION) << std::endl;
-	
-
-	/* To memorize
-		Vertex Buffer Object	(VBO)	.........	Data/Vertices	...........	target: GL_ARRAY_BUFFER			.......	draw: glDrawArrays
-		Index Buffer Object		(IBO)	.........	Ref to Vertices	...........	target: GL_ELEMENT_ARRAY_BUFFER	.......	draw: glDrawElements
-	*/
 
 
-
-	/*********************************** 0.  Vertex Array (NEW) ***********************/
-	/*	To avoid setting VBO layout after every VBO(GL_ARRAY_BUFFER) binding, we can use "Vertex Array Object" which stores:
-		- reference to a VBO
-		- the VBO's attributes layout
-
-		To setup VAO:
-		0. Create & bind VAO
-		1. Create & Bind VBO to GL_ARRAY_BUFFER
-		2. Set attrib layout and enable them
-		3. Unind VAO **BEFORE** unbinding VBO, otherwise references will be deleted.
-	*/
+	/** 0. Vertex Array ******/
 	unsigned int vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
+
 	/** 1. Vertex Buffer ****/
 	float vertices[]{
-		-0.5f, -0.5f, 
+		-0.5f, -0.5f,
 		 0.5f, -0.5f,
 		 0.5f,  0.5f,
 		-0.5f,  0.5f
@@ -64,7 +51,7 @@ int main(void)
 	glEnableVertexAttribArray(0);
 
 
-	/** 2. Index Buffer ****/
+	/** 2. Index Buffer ******/
 	unsigned int indices[]{
 		0,1,2,
 		2,3,0
@@ -74,34 +61,52 @@ int main(void)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
+
+	/** 3. Shader ******/
+	unsigned int programId = glCreateProgram();
+	unsigned int vs = CompileShader(GL_VERTEX_SHADER,	"#version 330 core\n"
+														"layout(location = 0) in vec4 position;\n"	
+														"void main() {\n"
+														"	gl_Position = position;\n"
+														"}");
+
+	unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, "#version 330 core\n"
+														"layout(location = 0) out vec4 color;\n"
+														"uniform vec4 u_Color;" // NEW
+														"void main() {\n"
+														"	color = u_Color;\n" // NEW
+														"}");
+	glAttachShader(programId, vs);
+	glAttachShader(programId, fs);
+	glLinkProgram(programId);
+	glValidateProgram(programId);
+	glDeleteShader(vs);
+	glDeleteShader(fs);
+
+
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
-		
-		
-		/* For Drawing:
-			BEFORE USING VAO:
-				By default we are in OpenGL_Compatibility_profile, and a *shared* "Vertex Array" is created for us.
-				So when for every draw, we bind VBO and set its layout, it applies on the shared VAO behind the scene.
-			AFTER USING VAO:
-			Now, since we already setup VAO for our rectangular, we only need to bind (in arbitrary order):
-			- VAO (it take cares of binding VBO and setting its layout)
-			- IBO
-			- Shader
-			- DRAW !!!
-		*/
+
+
 		glBindVertexArray(vao);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
-		//glUseProgram(...) //when we have shader
+		/*********************************** Uniform ***********************/
+		// 1. After binding shader
+		glUseProgram(programId);
+		// 2. Get uniform variable location (we use program, not specific shader)
+		int loc = glGetUniformLocation(programId, "u_Color");
+		// 3. Set uniform value
+		glUniform4f(loc, rand()/float(RAND_MAX), 0.4f, 0.1f, 1.f);
+		/*------------------------------------------------------------------*/
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 		UnbindEeverything();
 
+
 		glfwSwapBuffers(window);
-		glfwPollEvents();		
+		glfwPollEvents();
 	}
 
 	glfwTerminate();
 	return 0;
 }
-
 #endif

@@ -91,6 +91,8 @@
     <ClCompile Include="src\2_Draw_w_IndexBuffer_IBO.cpp" />
     <ClCompile Include="src\3_Draw_w_VertexArray_VAO.cpp" />
     <ClCompile Include="src\4_Draw_w_Shader.cpp" />
+    <ClCompile Include="src\5_Draw_w_Shader_w_Uniform.cpp" />
+    <ClCompile Include="src\Shared.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
